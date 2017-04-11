@@ -1,0 +1,126 @@
+#!/bin/bash
+
+set -e
+set -u
+
+Usage () { cat >&2 <<EOF
+Usage: $0 SETTINGS
+Assemble geoserver.war with modules using nightly files
+Where:
+  SETTINGS  File containing settings (see settings.conf.example)
+
+EOF
+}
+
+Error () { printf >&2 'Error: %s\n' "$*" ; }
+
+while [ $# -gt 0 ] ; do
+  case "$1" in
+    --) shift ; break ;;
+    -h|--help) Usage ; exit 0 ;;
+    -*) Usage ; exit 1 ;;
+    *) break ;;
+  esac
+done
+
+if [ $# -ne 1 ] ; then Usage ; exit 1 ; fi
+
+settings_file=$1
+
+
+main () {
+  load_settings
+  check_settings
+  download
+  assemble
+}
+
+
+load_settings () {
+  . "$settings_file"
+}
+
+
+check_settings () {
+  if [ ${#EXTENSION_NAMES[*]} -eq 0 -a ${#COMMUNITY_NAMES[*]} -eq 0 ] ; then
+    Error No plugins specified. Just use stock "${GEOSERVER}.war".
+    exit 1
+  fi
+}
+
+
+download () {
+  local name
+
+  download_war
+  for name in "${EXTENSION_NAMES[@]}" ; do
+    download_module "$EXTENSION_FOLDER_NAME" "$name"
+  done
+  for name in "${COMMUNITY_NAMES[@]}" ; do
+    download_module "$COMMUNITY_FOLDER_NAME" "$name"
+  done
+}
+
+
+download_war () {
+  download_file "$WAR_ZIP_NAME"
+}
+
+
+download_module () {
+  local folder=$1
+  local name=$2
+
+  download_file "${folder}/${MODULE_FILE_PREFIX}${name}${MODULE_FILE_SUFFIX}"
+}
+
+
+download_file () {
+  local url=${NIGHTLY_URL}/$1
+  local file=${NIGHTLY_FOLDER}/$1
+  local folder=$( dirname "$file" )
+  local curl_opts=( -gLRs -o "$file" )
+
+  if [ -e "$file" ] ; then
+    curl_opts+=( -z "$file" )
+  fi
+
+  mkdir -p -- "$folder"
+  curl "${curl_opts[@]}" "$url"
+}
+
+
+assemble () {
+  local tmp=${BUILD_FOLDER}/tmp.$(date +%s)
+  local war_zip=${NIGHTLY_FOLDER}/${WAR_ZIP_NAME}
+  local input_war=${tmp}/${GEOSERVER}.war
+  local war_unzipped=${tmp}/${GEOSERVER}
+  local output_war=${BUILD_FOLDER}/${GEOSERVER}.war
+  local full_path_to_output_war=$( cd -- "$PWD" && /bin/pwd )/${output_war}
+  local name
+
+  mkdir -p -- "$tmp"
+  unzip -q "$war_zip" -d "$tmp"
+  unzip -q "$input_war" -d "$war_unzipped"
+  for name in "${EXTENSION_NAMES[@]}" ; do
+    unzip_module "$war_unzipped" "$EXTENSION_FOLDER_NAME" "$name"
+  done
+  for name in "${COMMUNITY_NAMES[@]}" ; do
+    unzip_module "$war_unzipped" "$COMMUNITY_FOLDER_NAME" "$name"
+  done
+  rm -f -- "$output_war"
+  ( cd -- "$war_unzipped" && zip -qr "$full_path_to_output_war" . )
+  rm -rf -- "$tmp"
+  echo "$output_war"
+}
+
+
+unzip_module () {
+  local destination=$1/WEB-INF/lib
+  local zip=${NIGHTLY_FOLDER}/${2}/${MODULE_FILE_PREFIX}${3}${MODULE_FILE_SUFFIX}
+
+  unzip -qn "$zip" -d "$destination"
+}
+
+
+main

@@ -1,0 +1,136 @@
+# Settings
+# -*- mode: bash; -*-
+
+# Date of nightly files (used in URLs)
+#DATE='YYYY-MM-DD'
+
+# Branch and version labels (see layout of distribution site)
+#VERSION='2.12' BRANCH='master'
+#VERSION='2.11' BRANCH='2.11.x'
+#VERSION='2.10' BRANCH='2.10.x'
+
+# List of official extension modules to include
+EXTENSION_NAMES=(
+    # app-schema
+    # arcsde
+    # cas
+    # charts
+    # control-flow
+    # css
+    # csw
+    # db2
+    # dxf
+    # excel
+    # feature-pregeneralized
+    # gdal
+    # grib
+    # h2
+    # imagemap
+    # imagemosaic-jdbc
+    # importer-bdb
+    # importer
+    # inspire
+    # jp2k
+    # libjpeg-turbo
+    # monitor-hibernate
+    # monitor
+    # mysql
+    # netcdf-out
+    # netcdf
+    # ogr-wfs
+    # ogr-wps
+    # oracle
+    # printing
+    # pyramid
+    # querylayer
+    # sqlserver
+    # teradata
+    # vectortiles
+    # wcs2_0-eo
+    # wps-cluster-hazelcast
+    # wps
+    # xslt
+    # ysld
+)
+
+# List of community modules to include
+COMMUNITY_NAMES=(
+    # activeMQ-broker
+    # aggregate
+    # authkey
+    # backup-restore
+    # colormap
+    # dds
+    # dyndimension
+    # gdal-wcs
+    # gdal-wps
+    # geofence
+    # geofence-server
+    # geopkg
+    # gpx
+    # groovy
+    # gwc-distributed
+    # gwc-s3
+    # gwc-sqlite
+    # hz-cluster
+    # javascript
+    # jdbc-metrics
+    # jdbcconfig
+    # jdbcstore
+    # jms-cluster
+    # kmlppio
+    # mbtiles
+    # ncwms
+    # notification
+    # onelogin
+    # opensearch-eo
+    # ows-simulate
+    # params-extractor
+    # pgraster
+    # python
+    # rest-ext
+    # rest-upload
+    # sec-oauth2-geonode
+    # sec-oauth2-github
+    # sec-oauth2-google
+    # sldservice
+    # solr
+    # spatialite
+    # wms-eo
+    # wmts-multi-dimensional
+    # wps-download
+    # wps-jdbc
+    # wps-remote
+)
+
+
+#
+# Defaults
+#
+
+# Name used everywhere
+GEOSERVER='geoserver'
+
+# Location to save nightly files
+NIGHTLY_FOLDER="nightly/${BRANCH}"
+
+# Location to save geoserver.war
+BUILD_FOLDER="build/${BRANCH}/${DATE}"
+
+# Name of file that contains geoserver.war
+WAR_ZIP_NAME="${GEOSERVER}-${BRANCH}-${DATE}-war.zip"
+
+# Prefix of module file name
+MODULE_FILE_PREFIX="${GEOSERVER}-${VERSION}-SNAPSHOT-"
+
+# Suffix of module file name
+MODULE_FILE_SUFFIX="-plugin.zip"
+
+# Name of folder containing extensions
+EXTENSION_FOLDER_NAME="ext-${DATE}"
+
+# Name of folder containing community modules
+COMMUNITY_FOLDER_NAME="community-${DATE}"
+
+# Location of the geoserver nightly files
+NIGHTLY_URL="http://ares.boundlessgeo.com/geoserver/${BRANCH}"
